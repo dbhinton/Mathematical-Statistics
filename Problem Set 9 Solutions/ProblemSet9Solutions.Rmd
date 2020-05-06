@@ -1,0 +1,1773 @@
+---
+title: "Problem Set 9 Solutions"
+subtitle: 'MATH E-156: Mathematical Statistics'
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r}
+rm( list = ls() )
+```
+
+
+```{r}
+load( "Problem Set 9 R Objects.Rdata" )
+```
+
+
+# Problem 1: Constructing a One-Sample $t$-Test
+
+The data in `one.sample.t.test.data` comes from a normally distributed population with an unknown expected value, and we will perform a two-sided test of the null hypothesis $H_0: \mu = 200$ using a one-sample $t$-test with a significance level of $\alpha = 0.05$.
+
+
+## Part (a): Sample size
+
+How many observations are in the vector `one.sample.t.test.data`? Save this value in a variable, and report your answer with a `cat()` statement.
+
+**Solution**
+
+```{r}
+sample.size <-
+    length( one.sample.t.test.data )
+
+cat( "Sample size:", sample.size )
+```
+
+
+
+## Part (b): Degrees of freedom
+
+What are the appropriate degrees of freedom for this test? Save this value in a variable, and report your result using a `cat()` statement.
+
+**Solution**
+
+```{r}
+degrees.of.freedom <- sample.size - 1
+
+cat( "Degrees of freedom:", degrees.of.freedom )
+```
+
+
+
+## Part (c): Lower critical value
+
+We wish to perform our test using a significance level of $\alpha = 0.05$. Calculate lower critical value $L$ for this test. Store this value in a variable, and report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+significance.level <- 0.05
+```
+
+
+```{r}
+lower.critical.value <-
+    qt( significance.level / 2, degrees.of.freedom )
+
+cat( "Lower critical value:",
+     round( lower.critical.value, 5 ) )
+```
+
+
+
+## Part (d): Upper critical value
+
+We wish to perform our test using a significance level of $\alpha = 0.05$. Calculate the upper critical value $U$ for this test. Store this value in a variable, and report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+upper.critical.value <-
+    qt( 1 - significance.level / 2, degrees.of.freedom )
+
+cat( "Upper critical value:",
+     round( upper.critical.value, 5 ) )
+```
+
+
+
+## Part (e): Graphing the density curve
+
+Draw a diagram showing the density curve for the sampling distribution of the studentized $t$ statistic for this data. Indicate the lower and upper critical values with a vertical bar, and annotate these with test. Shade underneath the curve for the rejection region.
+
+**Solution**
+
+```{r}
+plot(
+    x = NULL,
+    xlim = c(-4, 4),
+    ylim = c(0, 0.5),
+    main = "Density curve for sampling distribution",
+    xlab = "t",
+    ylab = "Density"
+)
+
+shade.under.t.density.curve(
+    initial.x = -4,
+    final.x = lower.critical.value,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    lower.critical.value, 0,
+    lower.critical.value, 0.3,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    lower.critical.value,
+    0.33,
+    paste( "L =", round( lower.critical.value, 2 ) )
+)
+
+
+shade.under.t.density.curve(
+    initial.x = upper.critical.value,
+    final.x = 4,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    upper.critical.value, 0,
+    upper.critical.value, 0.3,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    upper.critical.value,
+    0.33,
+    paste( "U =", round( upper.critical.value, 2 ) )
+)
+
+
+segments(
+    -4, 0, 4, 0,
+    lty = "solid",
+    lwd = 2,
+    col = "gray50"
+)
+
+curve(
+    dt(x, df = degrees.of.freedom),
+    lty = "solid",
+    lwd = 3,
+    col = "black",
+    add = TRUE
+)
+```
+
+
+
+\newpage
+
+End of problem 1
+
+\newpage
+
+
+
+
+
+# Problem 2: Conducting the One-Sample $t$-Test
+
+Now it's time to actually run the analysis!
+
+## Part (a)
+
+What is the sample mean of `one.sample.t.test.data`? Store this value in a variable, and report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+sample.mean <- mean( one.sample.t.test.data )
+
+cat( "Sample mean:",
+     round( sample.mean, 5 ) )
+```
+
+
+
+## Part (b)
+
+Construct a stripchart of the data in `one.sample.t.test.data`. Draw in the sample mean using a solid vertical bar, and then draw in the null hypothesis value $\mu_0 = 85$ using a dashed vertical line. Do you think this data constitutes strong evidence against the null hypothesis?
+
+**Solution**
+
+```{r}
+null.hypothesis.expected.value <- 85
+```
+
+```{r}
+stripchart(
+    one.sample.t.test.data,
+    xlim = c(60, 120),
+    ylim = c(0, 2),
+    main = "Stripchart of problem.2.data",
+    xlab = "x",
+    method = "jitter",
+    jitter = 0.7,
+    pch = 19,
+    cex = 2,
+    col = "royalblue2"
+)
+
+segments(
+    sample.mean, 0.5, sample.mean, 1.5,
+    lty = "solid",
+    lwd = 3,
+    col = "royalblue4"
+)
+
+segments(
+    null.hypothesis.expected.value, 0.3,
+    null.hypothesis.expected.value, 1.7,
+    lty = "dashed",
+    lwd = 4,
+    col = "navy"
+)
+```
+
+
+
+## Part (c)
+
+What is the sample variance of `one.sample.t.test.data`? Store this value in a variable, and report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+sample.variance <- var( one.sample.t.test.data )
+
+cat( "Sample variance:",
+     round( sample.variance, 5 ) )
+```
+
+
+## Part (d)
+
+Calculate the $t$ statistic for this data, using the null hypothesis value of $\mu_0 = 85$. Save this value in a variable, and report your result using a `cat()` statement.
+
+**Solution**
+
+```{r}
+t.score <-
+    (sample.mean - null.hypothesis.expected.value) /
+    sqrt( sample.variance/sample.size )
+
+cat( "t score:",
+     round( t.score, 5 ) )
+```
+
+
+## Part (e)
+
+Using the lower and critical values you calculate in parts (c) and (d) of problem 1, perform a two-sided test of the null hypothesis $H_0: \mu = 85$ at the $\alpha = 0.05$ significance level.
+
+**Solution**
+
+
+
+## Part (f)
+
+Copy your graph from part (e) of problem 1. Then add in a vertical line indicating the observed $t$ statistic, and annotate it with text.
+
+**Solution**
+
+```{r}
+plot(
+    x = NULL,
+    xlim = c(-4, 4),
+    ylim = c(0, 0.5),
+    main = "Density curve for sampling distribution",
+    xlab = "t",
+    ylab = "Density"
+)
+
+shade.under.t.density.curve(
+    initial.x = -4,
+    final.x = lower.critical.value,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    lower.critical.value, 0,
+    lower.critical.value, 0.3,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    lower.critical.value,
+    0.33,
+    paste( "L =", round( lower.critical.value, 2 ) )
+)
+
+
+shade.under.t.density.curve(
+    initial.x = upper.critical.value,
+    final.x = 4,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    upper.critical.value, 0,
+    upper.critical.value, 0.3,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    upper.critical.value,
+    0.33,
+    paste( "U =", round( upper.critical.value, 2 ) )
+)
+
+
+segments(
+    t.score, 0, t.score, 0.35,
+    lty = "solid",
+    lwd = 3,
+    col = "navy"
+)
+
+text(
+    t.score,
+    0.38,
+    paste( "t =", round(t.score, 2) ),
+    col = "navy"
+)
+
+
+segments(
+    -4, 0, 4, 0,
+    lty = "solid",
+    lwd = 2,
+    col = "gray50"
+)
+
+
+
+curve(
+    dt(x, df = degrees.of.freedom),
+    lty = "solid",
+    lwd = 3,
+    col = "black",
+    add = TRUE
+)
+
+
+```
+
+
+
+
+## Part (g)
+
+Construct a two-sided 95\% confidence interval for the true population expected value. Report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+lower.confidence.interval.endpoint <-
+    sample.mean +
+    qt( significance.level / 2, df = degrees.of.freedom ) *
+    sqrt( sample.variance / sample.size )
+
+upper.confidence.interval.endpoint <-
+    sample.mean +
+    qt( 1 - significance.level / 2, df = degrees.of.freedom ) *
+    sqrt( sample.variance / sample.size )
+
+cat( "95% confidence interval: (",
+     round( lower.confidence.interval.endpoint, 5 ),
+     ", ",
+     round( upper.confidence.interval.endpoint, 5 ),
+     ")",
+     sep = ""
+)
+```
+
+
+## Part (h)
+
+Calculate the $p$-value for this test statistic.
+
+```{r}
+2 * pt( t.score, df = sample.size - 1, lower.tail = FALSE )
+```
+
+
+## Part (i)
+
+Conduct the hypothesis test using the built-in R function `t.test`. How do the results of this analysis compare with your work in the previous parts of this problem?
+
+**Solution**
+
+Let's run the test:
+```{r}
+t.test(
+    one.sample.t.test.data,
+    mu = null.hypothesis.expected.value
+)
+```
+
+
+
+\newpage
+
+End of problem 2
+
+\newpage
+
+
+
+# Problem 3: Constructing a Two-Sample $t$-Test
+
+The next two problems will be concerned with the two-sample $t$ test, We using a two-tailed test, with a significance level of $\alpha = 0.05$. In this problem, we will construct the test, and in the next problem we will actually perform it. As in the lecture, we will focus on the case where the variances are assumed to be equal. 
+
+
+## Part (a)
+
+Determine the sample size of the data for Group 1, save it in a variable, and report it using a `cat()` statement. Then determine the sample size of the data for Group 2, save it in a variable, and report it using a `cat()` statement.
+
+```{r}
+group.1.sample.size <-
+    length( group.1.data )
+
+cat( "Group 1 sample size:", group.1.sample.size )
+```
+
+
+```{r}
+group.2.sample.size <-
+    length( group.2.data )
+
+cat( "Group 2 sample size:", group.2.sample.size )
+```
+
+
+## Part (b)
+
+Calculate the appropriate degrees of freedom for a two-sample $t$-test. Store this value in a variable, and report it using a `cat()` statement.
+
+**Solution**
+
+```{r}
+degrees.of.freedom <-
+    group.1.sample.size + group.2.sample.size - 2
+
+cat( "Degrees of freedom:", degrees.of.freedom )
+```
+
+
+## Part (c)
+
+Using a significance level of $\alpha = 0.05$, calculate $L$, the lower critical value for the test. Store this in a variable, and report it using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+significance.level <- 0.05
+```
+
+
+```{r}
+lower.critical.value <-
+    qt(
+        significance.level / 2,
+        degrees.of.freedom
+    )
+
+cat( "Lower critical value:",
+     round( lower.critical.value, 5 ) )
+```
+
+
+
+## Part (d)
+
+Using a significance level of $\alpha = 0.05$, calculate $U$, the upper critical value for the test. Store this in a variable, and report it using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+upper.critical.value <-
+    qt(
+        1 - significance.level / 2,
+        degrees.of.freedom
+    )
+
+cat( "Upper critical value:",
+     round( upper.critical.value, 5 ) )
+```
+
+
+
+
+## Part (e): Graphing the density curve
+
+Draw a diagram showing the density curve for the sampling distribution of the studentized two-sample $t$ statistic under the null hypothesis. Indicate the lower and upper critical values with a vertical bar, and annotate these with test. Shade underneath the curve for the rejection region.
+
+**Solution**
+
+```{r}
+plot(
+    x = NULL,
+    xlim = c(-4, 4),
+    ylim = c(0, 0.5),
+    main = "Density curve for sampling distribution",
+    xlab = "t",
+    ylab = "Density"
+)
+
+shade.under.t.density.curve(
+    initial.x = -4,
+    final.x = lower.critical.value,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    lower.critical.value, 0,
+    lower.critical.value, 0.3,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    lower.critical.value,
+    0.33,
+    paste( "L =", round( lower.critical.value, 2 ) )
+)
+
+
+shade.under.t.density.curve(
+    initial.x = upper.critical.value,
+    final.x = 4,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    upper.critical.value, 0,
+    upper.critical.value, 0.3,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    upper.critical.value,
+    0.33,
+    paste( "U =", round( upper.critical.value, 2 ) )
+)
+
+
+segments(
+    -4, 0, 4, 0,
+    lty = "solid",
+    lwd = 2,
+    col = "gray50"
+)
+
+curve(
+    dt(x, df = degrees.of.freedom),
+    lty = "solid",
+    lwd = 3,
+    col = "black",
+    add = TRUE
+)
+```
+
+
+
+\newpage
+
+End of problem 3
+
+\newpage
+
+
+
+
+# Problem 4: Conducting the Two-Sample $t$-Test
+
+## Part (a)
+
+Calculate the sample mean for Group 1. Store this value in a variable, and report it using a `cat()` statement. Then calculate the sample mean for Group 2. Store this value in a variable, and report it using a `cat()` statement.
+
+**Solution**
+
+```{r}
+group.1.sample.mean <-
+    mean( group.1.data )
+
+cat( "Group 1 sample mean:",
+     round( group.1.sample.mean, 5 ) )
+```
+
+```{r}
+group.2.sample.mean <-
+    mean( group.2.data )
+
+cat( "Group 2 sample mean:",
+     round( group.2.sample.mean, 5 ) )
+```
+
+
+## Part (b)
+
+Calculate the sample variance for Group 1. Store this value in a variable, and report it using a `cat()` statement. Then calculate the sample variance for Group 2. Store this value in a variable, and report it using a `cat()` statement.
+
+**Solution**
+
+```{r}
+group.1.sample.variance <-
+    var( group.1.data )
+
+cat( "Group 1 sample variance:",
+     round( group.1.sample.variance, 5 ) )
+```
+
+
+
+```{r}
+group.2.sample.variance <-
+    var( group.2.data )
+
+cat( "Group 2 sample variance:",
+     round( group.2.sample.variance, 5 ) )
+```
+
+
+## Part (c)
+
+Calculate $S_p$, the pooled estimate of the common population variance. Store this value in a variable, and report it using a `cat()` statement.
+
+**Solution**
+
+```{r}
+pooled.variance.estimate <-
+    ( ( (group.1.sample.size - 1) * group.1.sample.variance ) +
+          ( (group.2.sample.size - 1) * group.2.sample.variance ) ) /
+    (group.1.sample.size + group.2.sample.size - 2)
+
+cat( "Pooled variance estimate:",
+     round( pooled.variance.estimate, 5 ) )
+```
+
+
+## Part (d)
+
+Calculate the $t$ statistic for this data. Store this in a variable, and report your result using a `cat()` statement.
+
+**Solution**
+
+```{r}
+t.statistic <-
+    (group.1.sample.mean - group.2.sample.mean) /
+    sqrt(
+        pooled.variance.estimate *
+            (1/group.1.sample.size + 1/group.2.sample.size)
+    )
+
+cat( "Observed t statistic:",
+     round( t.statistic, 5 ) )
+```
+
+
+## Part (e)
+
+Copy the code from part (e) of problem 3 for the graph of the density curve of the test statistic under the null hypothesis. Then add a vertical line to indicate the observed $t$ statistic, and annotate it with text.
+
+**Solution**
+
+```{r}
+plot(
+    x = NULL,
+    xlim = c(-4, 4),
+    ylim = c(0, 0.5),
+    main = "Density curve for sampling distribution",
+    xlab = "t",
+    ylab = "Density"
+)
+
+shade.under.t.density.curve(
+    initial.x = -4,
+    final.x = lower.critical.value,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    lower.critical.value, 0,
+    lower.critical.value, 0.3,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    lower.critical.value,
+    0.33,
+    paste( "L =", round( lower.critical.value, 2 ) )
+)
+
+
+shade.under.t.density.curve(
+    initial.x = upper.critical.value,
+    final.x = 4,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    upper.critical.value, 0,
+    upper.critical.value, 0.3,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    upper.critical.value,
+    0.33,
+    paste( "U =", round( upper.critical.value, 2 ) )
+)
+
+
+segments(
+    t.statistic, 0,
+    t.statistic, 0.2,
+    lty = "solid",
+    lwd = 3,
+    col = "red"
+)
+
+text(
+    t.statistic + 0.6,
+    0.2,
+    labels = paste( "t =", round( t.statistic, 2 ) ),
+    col = "red"
+)
+
+
+segments(
+    -4, 0, 4, 0,
+    lty = "solid",
+    lwd = 2,
+    col = "gray50"
+)
+
+curve(
+    dt(x, df = degrees.of.freedom),
+    lty = "solid",
+    lwd = 3,
+    col = "black",
+    add = TRUE
+)
+```
+
+
+## Part (f)
+
+Using the critical values you calculated in problem 3, perform a two-sided test of the null hypothesis $h_0: \mu_1 = \mu_2$ using a significance level of $\alpha = 0.05$. Does this data constitute strong evidence against the null hypothesis? Explain your answer with one or two sentences.
+
+**Solution**
+
+
+
+## Part (g)
+
+Calculate the lower endpoint of the 95\% confidence interval for the difference of the true population expected values. Report your result using a `cat()` statement, rounding to 5 decimal places. Then calculate the upper endpoint of the 95\% confidence interval for the difference of the true population expected values. Report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+lower.confidence.interval.endpoint <-
+    (group.1.sample.mean - group.2.sample.mean) +
+    qt( significance.level /2, degrees.of.freedom ) *
+    sqrt(
+        pooled.variance.estimate *
+            (1/group.1.sample.size + 1/group.2.sample.size)
+    )
+
+cat( "Lower confidence interval endpoint:",
+     round( lower.confidence.interval.endpoint, 5 ) )
+```
+
+
+```{r}
+upper.confidence.interval.endpoint <-
+    (group.1.sample.mean - group.2.sample.mean) +
+    qt( 1 - significance.level /2, degrees.of.freedom ) *
+    sqrt(
+        pooled.variance.estimate *
+            (1/group.1.sample.size + 1/group.2.sample.size)
+    )
+
+cat( "Upper confidence interval endpoint:",
+     round( upper.confidence.interval.endpoint, 5 ) )
+```
+
+
+
+## Part (h)
+
+Calculate the two-sided $p$-value for this observed data. Report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+p.value <-
+    2 * 
+    pt(
+        t.statistic,
+        degrees.of.freedom,
+        lower.tail = FALSE
+    )
+
+p.value <-
+    cat( "p-value:",
+         round( p.value, 5 ) )
+```
+
+
+
+
+
+## Part (i)
+
+Now use the built-in R function `t.test()` to conduct the two-sample $t$-test. How do the results of this analysis compare with your previous work?
+
+**Solution**
+
+```{r}
+t.test(
+    group.1.data,
+    group.2.data,
+    var.equal = TRUE
+)
+```
+
+
+
+
+\newpage
+
+End of problem 4
+
+\newpage
+
+
+
+
+
+# Problem 5: Constructing a One-Sample Variance Test
+
+Now we're going to perform a one-sample test on a variance.
+
+
+## Part (a): Sample size
+
+How many observations are contained in `one.sample.variance.test.data`? Save this value in a variable, and report your result using a `cat()` statement.
+
+**Solution**
+
+```{r}
+sample.size <- length( one.sample.variance.test.data )
+
+cat( "Sample size:", sample.size )
+```
+
+
+## Part (b): Degrees of freedom
+
+The data in `one.sample.variance.test.data` come from a normally distributed population with an unknown variance, and we will perform a two-sided test on the population variance. What are the appropriate degrees of freedom for this test? Save this value in a variable, and report your result using a `cat()` statement.
+
+**Solution**
+
+```{r}
+degrees.of.freedom <- sample.size - 1
+
+cat( "Degrees of freedom:", degrees.of.freedom )
+```
+
+
+## Part (c): Lower critical value
+
+Suppose we wish to perform our two-sided test using the standardized variance test statistic, with a significance level of $\alpha = 0.10$. Calculate the lower critical value $L$ for this test. Store this value in a variable, and report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+significance.level <- 0.10
+```
+
+
+```{r}
+lower.critical.value <-
+    qchisq( significance.level / 2, degrees.of.freedom )
+
+cat( "Lower critical value:",
+     round( lower.critical.value, 5 ) )
+```
+
+
+## Part (d): Upper critical value
+
+Suppose we wish to perform our two-sided test using a significance level of $\alpha = 0.10$. Calculate the upper critical value $U$ for this test. Store this value in a variable, and report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+upper.critical.value <-
+    qchisq( 1 - significance.level / 2, degrees.of.freedom )
+
+cat( "Upper critical value:",
+     round( upper.critical.value, 5 ) )
+```
+
+
+## Part (e): Graphing the density curve
+
+Draw a diagram showing the density curve for the sampling distribution of the standardized variance test statistic for this data. Indicate the lower and upper critical values with a vertical bar, and annotate these with test. Shade underneath the curve for the rejection region.
+
+**Solution**
+
+```{r}
+plot(
+    x = NULL,
+    xlim = c(0, 100),
+    ylim = c(0, 0.05),
+    main = "Density curve for sampling distribution",
+    xlab = "Standardized test statistic",
+    ylab = "Density"
+)
+
+shade.under.chisq.density.curve(
+    initial.x = 0,
+    final.x = lower.critical.value,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    lower.critical.value, 0,
+    lower.critical.value, 0.035,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    lower.critical.value,
+    0.038,
+    paste( "L =", round( lower.critical.value, 2 ) )
+)
+
+
+shade.under.chisq.density.curve(
+    initial.x = upper.critical.value,
+    final.x = 100,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    upper.critical.value, 0,
+    upper.critical.value, 0.035,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    upper.critical.value,
+    0.038,
+    paste( "U =", round( upper.critical.value, 2 ) )
+)
+
+
+segments(
+    0, 0, 100, 0,
+    lty = "solid",
+    lwd = 2,
+    col = "gray50"
+)
+
+curve(
+    dchisq(x, df = degrees.of.freedom),
+    lty = "solid",
+    lwd = 3,
+    col = "black",
+    add = TRUE
+)
+```
+
+
+
+\newpage
+
+End of problem 5
+
+\newpage
+
+
+
+
+
+
+# Problem 6
+
+Now it's time to actually run the analysis!
+
+## Part (a)
+
+Construct a stripchart of the data in `one.sample.variance.test.data`. Apply jitter to points, and include a vertical line indicating the sample mean. Do you think this data constitutes strong evidence against the null hypothesis?
+
+**Solution**
+
+```{r}
+stripchart(
+    one.sample.variance.test.data,
+    xlim = c(50, 150),
+    ylim = c(0, 2),
+    main = "Stripchart of problem.7.data",
+    xlab = "x",
+    method = "jitter",
+    jitter = 0.7,
+    pch = 19,
+    cex = 2,
+    col = "royalblue2"
+)
+
+sample.mean <-
+    mean( one.sample.variance.test.data )
+
+segments(
+    sample.mean, 0.2,
+    sample.mean, 1.8,
+    lty = "dotted",
+    lwd = 4,
+    col = "navy"
+)
+
+```
+
+
+
+## Part (b)
+
+What is the sample variance of `one.sample.variance.test.data`? Store this value in a variable, and report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+sample.variance <- var( one.sample.variance.test.data )
+
+cat( "Sample variance:",
+     round( sample.variance, 5 ) )
+```
+
+
+## Part (c)
+
+Calculate the standardized variance test statistic for this data, using the null hypothesis value of $\sigma^2 = 120$. Save this value in a variable, and report your result using a `cat()` statement.
+
+**Solution**
+
+```{r}
+null.hypothesis.variance <- 120
+```
+
+
+```{r}
+standardized.variance.test.statistic <-
+    (sample.size - 1) * sample.variance /
+    null.hypothesis.variance
+
+cat( "Standardized variance test statistic:",
+     round( standardized.variance.test.statistic, 5 ) )
+```
+
+
+## Part (d)
+
+Using the lower and critical values you calculated in parts (c) and (d) of problem 5, perform a two-sided test of the null hypothesis $H_0: \mu = 200$ at the $\alpha = 0.10$ significance level.
+
+**Solution**
+
+
+
+## Part (e)
+
+Copy your graph from part (e) of problem 5. Then add in a vertical line indicating the observed standardized variance test statistic, and annotate it with text.
+
+**Solution**
+
+```{r}
+plot(
+    x = NULL,
+    xlim = c(0, 100),
+    ylim = c(0, 0.05),
+    main = "Density curve for sampling distribution",
+    xlab = "Standardized test statistic",
+    ylab = "Density"
+)
+
+shade.under.chisq.density.curve(
+    initial.x = 0,
+    final.x = lower.critical.value,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    lower.critical.value, 0,
+    lower.critical.value, 0.035,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    lower.critical.value,
+    0.038,
+    paste( "L =", round( lower.critical.value, 2 ) )
+)
+
+
+shade.under.chisq.density.curve(
+    initial.x = upper.critical.value,
+    final.x = 100,
+    degrees.of.freedom = degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    upper.critical.value, 0,
+    upper.critical.value, 0.035,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    upper.critical.value,
+    0.038,
+    paste( "U =", round( upper.critical.value, 2 ) )
+)
+
+
+segments(
+    standardized.variance.test.statistic, 0,
+    standardized.variance.test.statistic, 0.04,
+    lty = "solid",
+    lwd = 3,
+    col = "navy"
+)
+
+text(
+    standardized.variance.test.statistic,
+    0.043,
+    paste( round( standardized.variance.test.statistic, 2 ) ),
+    col = "navy"
+)
+
+
+segments(
+    0, 0, 100, 0,
+    lty = "solid",
+    lwd = 2,
+    col = "gray50"
+)
+
+curve(
+    dchisq(x, df = degrees.of.freedom),
+    lty = "solid",
+    lwd = 3,
+    col = "black",
+    add = TRUE
+)
+```
+
+
+
+## Part (f)
+
+Construct a two-sided 90\% confidence interval for the true population variance. Report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+lower.confidence.interval.endpoint <-
+    sample.variance * degrees.of.freedom /
+    qchisq( 1 - significance.level / 2, df = degrees.of.freedom )
+
+upper.confidence.interval.endpoint <-
+    sample.variance * degrees.of.freedom /
+    qchisq( significance.level / 2, df = degrees.of.freedom )
+
+cat( "90% confidence interval: (",
+     round( lower.confidence.interval.endpoint, 5 ),
+     ", ",
+     round( upper.confidence.interval.endpoint, 5 ),
+     ")",
+     sep = ""
+)
+```
+
+
+## Part (g)
+
+Calculate the $p$-value for this test statistic.
+
+```{r}
+2 * pchisq( standardized.variance.test.statistic, 
+            df = degrees.of.freedom,
+            lower.tail = FALSE )
+```
+
+
+
+\newpage
+
+End of problem 6
+
+\newpage
+
+
+
+# Problem 7: Constructing a Two-Sample Test on Variances
+
+The next two problems will be concerned with the two-sample test on variances, We using a two-tailed test, with a significance level of $\alpha = 0.10$. In this problem, we will construct the test, and in the next problem we will actually perform it.
+
+
+## Part (a)
+
+Determine the sample size of the data for Group A, save it in a variable, and report it using a `cat()` statement. Then determine the sample size of the data for Group 2, save it in a variable, and report it using a `cat()` statement.
+
+```{r}
+group.a.sample.size <-
+    length( group.a.data )
+
+cat( "Group A sample size:", group.a.sample.size )
+```
+
+
+```{r}
+group.b.sample.size <-
+    length( group.b.data )
+
+cat( "Group B sample size:", group.b.sample.size )
+```
+
+
+## Part (b)
+
+Calculate the appropriate numerator and denominator degrees of freedom for a two-sample test on variances. Store these values in variable, and report each one separately using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+numerator.degrees.of.freedom <-
+    group.a.sample.size - 1
+
+cat( "Numerator degrees of freedom:",
+     numerator.degrees.of.freedom )
+```
+
+```{r}
+denominator.degrees.of.freedom <-
+    group.b.sample.size - 1
+
+cat( "Denominator degrees of freedom:",
+     denominator.degrees.of.freedom )
+```
+
+
+
+## Part (c)
+
+Using a significance level of $\alpha = 0.05$, calculate $L$, the lower critical value for the test. Store this in a variable, and report it using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+significance.level <- 0.05
+```
+
+
+```{r}
+lower.critical.value <-
+    qf(
+        significance.level / 2,
+        df1 = numerator.degrees.of.freedom,
+        df2 = denominator.degrees.of.freedom
+    )
+
+cat( "Lower critical value:",
+     round( lower.critical.value, 5 ) )
+```
+
+
+
+## Part (d)
+
+Using a significance level of $\alpha = 0.05$, calculate $U$, the upper critical value for the test. Store this in a variable, and report it using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+upper.critical.value <-
+    qf(
+        1 - significance.level / 2,
+        df1 = numerator.degrees.of.freedom,
+        df2 = denominator.degrees.of.freedom
+    )
+
+cat( "Upper critical value:",
+     round( upper.critical.value, 5 ) )
+```
+
+
+
+
+## Part (e): Graphing the density curve
+
+Draw a diagram showing the density curve for the sampling distribution of the $F$ statistic under the null hypothesis. Indicate the lower and upper critical values with a vertical bar, and annotate these with test. Shade underneath the curve for the rejection region.
+
+**Solution**
+
+```{r}
+plot(
+    x = NULL,
+    xlim = c(0, 3),
+    ylim = c(0, 2),
+    main = "Density curve for sampling distribution",
+    xlab = "t",
+    ylab = "Density"
+)
+
+shade.under.f.density.curve(
+    initial.x = 0,
+    final.x = lower.critical.value,
+    df1 = numerator.degrees.of.freedom,
+    df2 = denominator.degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    lower.critical.value, 0,
+    lower.critical.value, 1.5,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    lower.critical.value,
+    1.6,
+    paste( "L =", round( lower.critical.value, 2 ) )
+)
+
+
+shade.under.f.density.curve(
+    initial.x = upper.critical.value,
+    final.x = 50,
+    df1 = numerator.degrees.of.freedom,
+    df2 = denominator.degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    upper.critical.value, 0,
+    upper.critical.value, 1.5,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    upper.critical.value,
+    1.6,
+    paste( "U =", round( upper.critical.value, 2 ) )
+)
+
+
+segments(
+    -4, 0, 4, 0,
+    lty = "solid",
+    lwd = 2,
+    col = "gray50"
+)
+
+curve(
+    df(
+        x,
+        df1 = numerator.degrees.of.freedom,
+        df2 = denominator.degrees.of.freedom
+    ),
+    lty = "solid",
+    lwd = 3,
+    col = "black",
+    add = TRUE
+)
+```
+
+
+
+\newpage
+
+End of problem 7
+
+\newpage
+
+
+
+
+# Problem 8: Conducting the Two-Sample Test on Variances
+
+## Part (a)
+
+Calculate the sample variance for Group A. Store this value in a variable, and report it using a `cat()` statement.
+
+**Solution**
+
+```{r}
+group.a.sample.variance <-
+    var( group.a.data )
+
+cat( "Group A sample variance:",
+     round( group.a.sample.variance, 5 ) )
+```
+
+
+
+## Part (b)
+
+Calculate the sample variance for Group B. Store this value in a variable, and report it using a `cat()` statement.
+
+**Solution**
+
+```{r}
+group.b.sample.variance <-
+    var( group.b.data )
+
+cat( "Group B sample variance:",
+     round( group.b.sample.variance, 5 ) )
+```
+
+
+## Part (c)
+
+Calculate the $F$ statistic for this observed data under the null hypothesis $H_0: \sigma_A^2 = \sigma_B^2$. Store this value in a variable, and report it using a `cat()` statement.
+
+**Solution**
+
+```{r}
+f.statistic <-
+    group.a.sample.variance /
+    group.b.sample.variance
+
+cat( "F statistic:",
+     round( f.statistic, 5 ) )
+```
+
+
+## Part (d)
+
+Copy the code from part (e) of problem 7 for the graph of the density curve of the test statistic under the null hypothesis. Then add a vertical line to indicate the observed $F$ statistic, and annotate it with text.
+
+**Solution**
+
+```{r}
+plot(
+    x = NULL,
+    xlim = c(0, 3),
+    ylim = c(0, 2),
+    main = "Density curve for sampling distribution",
+    xlab = "t",
+    ylab = "Density"
+)
+
+shade.under.f.density.curve(
+    initial.x = 0,
+    final.x = lower.critical.value,
+    df1 = numerator.degrees.of.freedom,
+    df2 = denominator.degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+
+segments(
+    f.statistic, 0,
+    f.statistic, 1,
+    lty = "solid",
+    lwd = 3,
+    col = "red"
+)
+
+
+
+text(
+    x = f.statistic - 0.2,
+    y = 1,
+    labels =
+        paste( "F =", round(f.statistic, 2) ),
+    col = "red"
+)
+
+
+
+
+segments(
+    lower.critical.value, 0,
+    lower.critical.value, 1.5,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    lower.critical.value,
+    1.6,
+    paste( "L =", round( lower.critical.value, 2 ) )
+)
+
+
+shade.under.f.density.curve(
+    initial.x = upper.critical.value,
+    final.x = 50,
+    df1 = numerator.degrees.of.freedom,
+    df2 = denominator.degrees.of.freedom,
+    fill.color = "salmon1"
+)
+
+segments(
+    upper.critical.value, 0,
+    upper.critical.value, 1.5,
+    lty = "solid",
+    lwd = 2,
+    col = "black"
+)
+
+text(
+    upper.critical.value,
+    1.6,
+    paste( "U =", round( upper.critical.value, 2 ) )
+)
+
+
+segments(
+    -4, 0, 4, 0,
+    lty = "solid",
+    lwd = 2,
+    col = "gray50"
+)
+
+curve(
+    df(
+        x,
+        df1 = numerator.degrees.of.freedom,
+        df2 = denominator.degrees.of.freedom
+    ),
+    lty = "solid",
+    lwd = 3,
+    col = "black",
+    add = TRUE
+)
+```
+
+
+
+
+## Part (f)
+
+Using the critical values you calculated in problem 3, perform a two-sided test of the null hypothesis $h_0: \sigma_1^2 = \sigma_2^2$ using a significance level of $\alpha = 0.05$. Does this data constitute strong evidence against the null hypothesis? Explain your answer with one or two sentences.
+
+**Solution**
+
+The observed value of the $F$ statistic was $F = 0.53$, and this is less than the lower critical value $L = 0.60$. Thus, we reject the null hypothesis, and conclude that this data constitutes strong evidence against the null hypothesis.
+
+
+
+## Part (g)
+
+Calculate the lower endpoint of the 95\% confidence interval for the ratio of the true population variances. Report your result using a `cat()` statement, rounding to 5 decimal places. Then calculate the upper endpoint of the 95\% confidence interval for the ratio of the true population variances. Report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+lower.confidence.interval.endpoint <-
+    (group.a.sample.variance / group.b.sample.variance) /
+    qf(
+        1 - significance.level / 2,
+        df1 = numerator.degrees.of.freedom,
+        df2 = denominator.degrees.of.freedom
+    )
+
+cat( "Lower confidence interval endpoint:",
+     round( lower.confidence.interval.endpoint, 5 ) )
+```
+
+
+```{r}
+upper.confidence.interval.endpoint <-
+    (group.a.sample.variance / group.b.sample.variance) /
+    qf(
+        significance.level / 2,
+        df1 = numerator.degrees.of.freedom,
+        df2 = denominator.degrees.of.freedom
+    )
+
+cat( "Upper confidence interval endpoint:",
+     round( upper.confidence.interval.endpoint, 5 ) )
+```
+
+
+
+## Part (h)
+
+Calculate the two-sided $p$-value for this observed data. Report your result using a `cat()` statement, rounding to 5 decimal places.
+
+**Solution**
+
+```{r}
+p.value <-
+    2 * 
+    pf(
+        f.statistic,
+        df1 = numerator.degrees.of.freedom,
+        df2 = denominator.degrees.of.freedom
+    )
+
+p.value <-
+    cat( "p-value:",
+         round( p.value, 5 ) )
+```
+
+
+
+
+
+## Part (i)
+
+Now use the built-in R function `var.test()` to conduct the two-sample test on variances. How do the results of this analysis compare with your previous work?
+
+**Solution**
+
+```{r}
+var.test(
+    group.a.data,
+    group.b.data
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
